@@ -1,19 +1,21 @@
 # D70 - Git / Github / systèmes de versioning
 
+## Apprentissage des commandes usuelles
+
 Effectuez les exercices du sandbox Git https://learngitbranching.js.org/?locale=fr_FR.
 
-À chaque exercice, prenez une capture d'écran ou recopiez les commandes utilisées pour accomplir l'objectif; puis ajoutez les à une archive en réponse du devoir sur l'espace Classroom.
+À chaque exercice, prenez une capture d'écran ou recopiez les commandes utilisées pour accomplir l'objectif; puis ajoutez les à une archive en réponse du devoir sur l'espace Classroom, ou directement dans votre dépôt après l'étape "Travailler à partir d'un repository existant" du TP.
 
-# Setup pro d'un compte Git
+## Setup pro d'un compte Git
 
 Dans cet exercice, nous allons mettre en place des bonnes pratiques pour utiliser Git et Github, et plus généralement travailler rigoureusement.
 
-## Créez un espace de travail
+### Créez un espace de travail
 
 Choisissez un dossier racine pour vos projets; ```~/Workspace/IT-Akademy``` est conseillé.
 Dans ce projet, créez les dossiers ```.git``` et ```.ssh```.
 
-## Création de clés SSH
+### Création de clés SSH
 
 Git implémente le (protocole SSH)[https://www.ssh.com/academy/ssh/openssh#ssh-key-management] pour sécuriser ses échanges interserveurs.
 Une bonne pratique consiste à utiliser des clés SSH différentes en fonction des contextes afin d'éviter de multiplier les vulnérabilités en cas de fuite de données. Elle permettra également d'avoir des configurations différentes en fonction des projets sans risque de surcharges.
@@ -21,14 +23,14 @@ Une bonne pratique consiste à utiliser des clés SSH différentes en fonction d
 Dans un premier temps, créez un couple de clées privées et publiques ```it_akademy_rsa.pub``` et ```it_akademy_rsa```, protégée par un mot de passe et/ou une sécurisation biométrique.
 Pour ce faire, utilisez l'outil (SSH-keygen)[https://www.ssh.com/academy/ssh/keygen] ou équivalent sur votre plateforme.
 
-## Paramétrage du compte Github
+### Paramétrage du compte Github
 
 Créez un compte Github avec votre email ```@it-students.fr```.
 Dans les paramètres de votre profil, cherchez l'entrée SSH & GPG keys. Ajoutez une nouvelle clé en copiant le contenu de la clé publique ```it_akademy_rsa.pub```.
 
 Vous venez d'autoriser tout détenteur de ma clé ```it_akademy_rsa``` à déposer des fichier sur Github via votre compte sans mot de passe. Votre clé doit de fait rester secrète.
 
-## Paramétrage de Git dans votre dossier de travail
+### Paramétrage de Git dans votre dossier de travail
 
 Il est possible de créer des configurations globales, par projet ou dossier avec Git. Pour éditer des configurations globales, il est possible d'utiliser la commande ```git config --global``` et dans une copie de travail ```git config --local```.
 
@@ -56,7 +58,7 @@ Les configurations fonctionnent par sections, ici nous avons modifié la section
 Nous allons maintenant paramétrer Git pour qu'il utilise la clé SSH générée précédemment pour tous ses appels quand la commande est lancée depuis le dossier de travail.
 Dans la section "core" du fichier de configuration, ajoutez l'entrée ```sshCommand``` pour que la commande ssh lancée par Git utilise votre clé privée avec l'option ```-i <chemin vers la clé privée>```.
 
-## Travailler à partir d'un repository existant
+### Travailler à partir d'un repository existant
 
 Il est usuel de ne pas avoir accès en écriture à un dépôt Git, en particulier quand on travaille en Open Source. Pour proposer des modifications, Github implémente une mécanique de "fork", qui permet de faire une copie d'un dépôt vers votre espace personnel.
 
@@ -68,7 +70,7 @@ Tapez la commande ```git clone <adresse_ssh_du_fork>```. Rendez-vous maintenant 
 Sauvegardez vos modifications puis créez un commit. Envoyez ensuite ce commit à votre dépôt. Si la configuration a été bien réalisée, votre commit sera visible dans l'interface de Github, et le .gif affiché dans la page principale.
 Vérifiez également que le commit est à votre nom-prénom-email.
 
-## Proposez une version au dépôt originel
+### Proposez une version au dépôt originel
 
 Pour demander l'intégration d'une modification de code à un dépôt externe, Github implémente un système nommé "Pull Request" (PR). Lors de l'ouverture d'une PR, vous sélectionnez la branche de votre dépôt que vous voulez proposer, et la branche du dépôt principal dans laquelle vous voulez intégrer vos modifications.
 
@@ -85,7 +87,7 @@ Vous pouvez maintenant récupérer l'intégralité des branches du dépôt princ
 
 Votre PR est désormais à jour et à nouveau compatible avec les dernières modifications.
 
-## Ne pas laisser traîner ses artefacts
+### Ne pas laisser traîner ses artefacts
 
 Certains OS et/ou IDE ajoutent des dossier et/ou fichiers cachés à vos projets. Certaines librairies ou frameworks génèrent également des dossiers et fichiers temporaires.
 Enfin, les résidus d'exécution comme les logs, les caches ou les fichiers générés ne doivent pas être versionnés avec le reste du code : ils sont propres à votre machine.
@@ -94,7 +96,7 @@ Pour éviter de les propager, il suffit de les référencer dans un fichier ```.
 
 Ajoutez le fichier ```add_this_gitignore``` à votre dossier ```<adresse_ssh_du_fork>/.git``` et référencez le dans la configuration de votre espace de travail.
 
-## Pre-commits
+### Pre-commits
 
 Git permet également de référencer des scripts à exécuter avant et après chaque commit / push et autres opérations.
 

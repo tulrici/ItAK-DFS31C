@@ -1,0 +1,9 @@
+services:
+    web:
+        image: nginx:latest
+        ports:
+            - "80:80"
+        depends_on:
+            - php
+    php:
+        image: php:latest

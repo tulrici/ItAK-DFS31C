@@ -3,7 +3,12 @@ services:
         image: nginx:latest
         ports:
             - "80:80"
+        volumes:
+            - ./nginx.conf:/etc/nginx.conf
+            - ./www/var/www/html
         depends_on:
             - php
     php:
-        image: php:latest
+        image: php:8.2-fpm
+        volumes:
+            - ./www:/var/www/html

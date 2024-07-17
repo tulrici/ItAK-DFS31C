@@ -14,17 +14,7 @@ La pull request devra suivre le format "Nom Prenom - Titre exercice".
   - [D46 - Php / Design Patterns](D46_Php_Design_Patterns/README.md)
   - [D11 - Php / Symfony](D11_Php_Symfony/README.md)
 
-## Commandes utiles
+## Documentation
 
-### Mettre à jour son fork à partir du dépôt principal
+  - [Livrer son travail](docs/workflow.md)
 
-Publiez ou "stashez" votre projet; puis :
-```sh
-# seulement la première fois
-git remote add upstream https://github.com/Nyxis/ItAK-DFS31C
-
-git fetch -a -p
-git checkout main
-git pull --rebase upstream main
-git push origin main --force
-```

@@ -44,23 +44,44 @@ Voici les classes suivantes :
 
 class Product
 {
-    public int $id;
-    public string $designation;
-    public string $univers;
-    public int $price;
+    public function __construct(
+        public ?int $id,
+        public string $designation,
+        public string $univers,
+        public int $price
+    ){
+    }
 }
 
 class ProductRepository
 {
+    public function __construct(
+        protected /* ??? */ $persistence
+    ) {
+    }
+
     public function save(Product $product)
     {
-        // convert Product to proper persistence format
+        $persistence->persist(
+            // all arguments needed to proper persist a Product
+        );
     }
 }
 
 class Database
 {
-    public function sqlQuery(string $sqlQuery, \PDO $connexion)
+    protected \PDO $connection;
+
+    /**
+     * @param string $dsn database connection DSN
+     * @example new Database('mysql://root:@127.0.0.1:3306/app?serverVersion=10.11.2-MariaDB&charset=utf8mb4')
+     */
+    public function __construct(string $dsn)
+    {
+        $this->connection = new \PDO($dsn);
+    }
+
+    public function sqlQuery(string $sqlQuery)
     {
         $stmt = $connexion->createStatement($sqlQuery);
         $stmt->execute();
@@ -77,3 +98,22 @@ Utilisez maintenant cet Adapter pour modifier la persistance des données sans m
 Pour tous ces exercices, veillez à respecter les principes SOLID.
 
 _Tips : ```json_encode()``` / ```file_put_contents()```_
+
+_Exemple de fichier main.php :_
+```php
+$product = new Product(
+    univers: 'Weapon',
+    designation: 'FkingBigSword',
+    price: 1200
+);
+
+$productRepository = new ProductRepository(
+    new /* ...... */(
+        Product::class,
+        'id',
+        new Database(/* .... */)
+    )
+);
+
+$productRepository->save($product);
+```

@@ -28,4 +28,8 @@ Intégrez le code de votre design pattern Adapter développé dans le module [D4
 Créez maintenant un formulaire qui permet de créer des objets Produit.
 Vous utiliserez le composant "Form" de Symfony pour ce faire, puis l'une de vos persistences pour sauvegarder les données.
 
+## Injection de dépendance
 
+Utilisez maintenant le composant d'injection de dépendance pour accéder au `ProductRepository` depuis votre Controller au moment de la soumission du formulaire pour remplacer la chaîne de création qui était nécessaire jusqu'ici.
+
+Une erreur doit survenir : en effet, le composant d'injection de dépendance ne peut pas résoudre l'argument abstrait de l'Adapter (le persistence interface). Il faut donc déclarer explicitement quelle implémentation sera utilisée dans l'application, Json ou Sql. Pour ce faire, utilisez la clé `services._default.bind` du fichier `config/services.yaml`.

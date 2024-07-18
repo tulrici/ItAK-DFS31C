@@ -83,7 +83,7 @@ class Database
 
     public function sqlQuery(string $sqlQuery)
     {
-        $stmt = $connexion->createStatement($sqlQuery);
+        $stmt = $this->connection->createStatement($sqlQuery);
         $stmt->execute();
     }
 }

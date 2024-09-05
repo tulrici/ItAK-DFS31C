@@ -18,7 +18,7 @@ save_config() {
 
 # Define base directories
 releases_dir="project/current/releases"
-release_dir="project/current/release" # Directory for the actual 'current' directory, not just a symlink
+release_dir="project/current/release"  # Directory for the actual 'current' directory, not just a symlink
 shared_dir="project/shared"
 dev_dir="project/dev"
 
@@ -30,16 +30,23 @@ update_current() {
     local new_release_path="$1"
     local release_name=$(basename "$new_release_path")
 
-    # Remove old 'current' directory and recreate it as a symlink to the new release
-    rm -rf "$release_dir/current"  # Remove the old current directory
-    ln -s "$new_release_path" "$release_dir/current"  # Create a symlink named 'current' pointing to the new release
+    # Check if current link exists and move it to releases before updating
+    if [ -L "$release_dir/current" ]; then
+        local old_release_path=$(readlink "$release_dir/current")
+        local old_release_name=$(basename "$old_release_path")
+        mv "$old_release_path" "$releases_dir/$old_release_name"
+        echo "Moved old release $old_release_name to releases directory."
+    fi
+
+    # Update 'current' directory
+    ln -sfn "$new_release_path" "$release_dir/current"
     echo "Current release set to: $release_name"
 }
 
 # Deployment logic
 deploy() {
     local timestamp=$(date +"%Y%m%d%H%M%S")
-    local new_release_dir="$releases_dir/$timestamp"
+    local new_release_dir="$release_dir/$timestamp"
     mkdir -p "$new_release_dir"
     find "$dev_dir" -type f -print0 | while IFS= read -r -d '' file; do
         local subdir=$(dirname "${file#$dev_dir/}")
@@ -60,7 +67,7 @@ rollback() {
     local current_index=$(basename "$(readlink "$release_dir/current")")
     for (( i=0; i<${#releases[@]}; i++ )); do
         if [[ "${releases[i]}" == "$current_index" && $i -gt 0 ]]; then
-            update_current "${releases_dir}/${releases[$i-1]}"
+            update_current "${release_dir}/${releases[$i-1]}"
             return
         fi
     done

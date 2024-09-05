@@ -17,7 +17,7 @@ save_config() {
 }
 
 # Define base directories
-releases_dir="project/current/releases"
+releases_dir="project/releases"
 release_dir="project/current/release"  # Directory for the actual 'current' directory, not just a symlink
 shared_dir="project/shared"
 dev_dir="project/dev"
@@ -59,19 +59,30 @@ deploy() {
 
 # Rollback logic
 rollback() {
-    local releases=($(ls -1tr "$releases_dir"))
+    # Fetch all available releases sorted from newest to oldest
+    local releases=($(ls -1t "$releases_dir"))
+    
+    # Ensure there's at least one older release to rollback to
     if [ ${#releases[@]} -eq 0 ]; then
-        echo "Rollback not possible: Not enough releases."
+        echo "Rollback not possible: No older releases available."
         return 1
     fi
-    local current_index=$(basename "$(readlink "$releases_dir/current")")
-    for (( i=0; i<${#releases[@]}; i++ )); do
-        if [[ "${releases[i]}" == "$current_index" && $i -gt 0 ]]; then
-            update_current "${release_dir}/${releases[$i-1]}"
-            return
-        fi
-    done
-    echo "Rollback not possible: Current release is the oldest or not found."
+    
+    # The current release is the one pointed to by the symlink in release_dir
+    local current_release=$(basename "$(readlink "$release_dir")")
+    local next_release="${releases[0]}"  # The most recent in releases_dir
+
+    # Check if the current release is already the oldest available
+    if [[ "$current_release" == "$next_release" ]]; then
+        echo "Rollback not possible: Current release is the only release or the newest available."
+        return 1
+    fi
+
+    # Remove the current symbolic link and update to the previous release
+    echo "Rolling back from $current_release to $next_release."
+    rm -rf "$release_dir/current"  # Remove the current symlink or directory
+    ln -sfn "$releases_dir/$next_release" "$release_dir"  # Point to the next most recent release
+    echo "Rollback to $next_release completed successfully."
 }
 
 # Read options

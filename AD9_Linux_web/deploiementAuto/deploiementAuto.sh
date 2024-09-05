@@ -1,9 +1,49 @@
 #!/bin/bash
 
 keepReleases=5
+releases_dir="project/current/releases"
+shared_dir="project/shared"
+current_link="project/current/release"
 
-mkdir -p project/current/releases
-mkdir -p project/shared
+# Ensure necessary directories exist
+mkdir -p "$releases_dir" "$shared_dir"
+
+# Function to handle deployment
+deploy() {
+    local timestamp=$(date +"%Y%m%d%H%M%S")
+    local new_release_dir="$releases_dir/$timestamp"
+    mkdir -p "$new_release_dir"
+
+    # Find and link all files from the shared directory
+    find "$shared_dir" -type f -print0 | while IFS= read -r -d '' file; do  
+        local subdir=$(dirname "${file#$shared_dir/}")
+        mkdir -p "$new_release_dir/$subdir"
+        ln -s "$PWD/$file" "$new_release_dir/$subdir/$(basename "$file")"
+    done
+
+    # Update current symlink to new release
+    ln -sfn "$new_release_dir" "$current_link"
+    echo "Deployment complete: $timestamp"
+}
+
+# Function to handle rollback
+rollback() {
+    # Read all directories in release, sorted by date (oldest to newest)
+    local releases=($(ls -1t "$releases_dir"))
+    # Find the index of the currently active release
+    local current_index=$(basename $(readlink "$current_link"))
+
+    for (( i=0; i<${#releases[@]}; i++ )); do
+        if [[ "${releases[i]}" == "$current_index" && $i -gt 0 ]]; then
+            # Set symlink to the previous release in the list
+            ln -sfn "${releases_dir}/${releases[$i-1]}" "$current_link"
+            echo "Rolled back to: ${releases[$i-1]}"
+            return
+        fi
+    done
+
+    echo "Rollback not possible: Current release is the oldest or not found."
+}
 
 # Read options
 while getopts ":k:" opt; do
@@ -11,31 +51,31 @@ while getopts ":k:" opt; do
     k )
         keepReleases=$OPTARG
         ;;
-    deploy )
-        # Deploy the project
-        ;;
-    rollback )
-        # Rollback the project
+    \? )
+        echo "Invalid option: -$OPTARG" >&2
+        exit 1
         ;;
   esac
 done
 
-timestamp=$(date +"%Y%m%d%H%M%S")
-mkdir project/current/release/${timestamp}
+# Shift off the options and the -- that were processed by getopts.
+shift $((OPTIND-1))
 
-cd project/current/release
-# List directories, sort them in reverse order, skip the newest based on keepReleases count, and remove the older ones
-ls -1 |                       # List all items in the directory, one per line
-sort -r |                     # Sort the list in reverse order (newest first)
-tail -n +$((keepReleases + 1)) |  # Skip the first 'keepReleases' items, listing only older ones
-xargs -I {} rm -rf {}         # For each listed item, delete it recursively and forcefully
+# Process commands
+case "$1" in
+    deploy)
+        deploy
+        ;;
+    rollback)
+        rollback
+        ;;
+    *)
+        echo "Usage: $0 {deploy|rollback} [-k number_of_releases]"
+        exit 1
+        ;;
+esac
 
-
-# Find all files in the shared directory, create symbolic links in the release folder
-find "project/shared" -type f -print0 | while IFS= read -r -d '' file; do  
-  # Create the corresponding directory structure in the release folder, if it doesn't exist
-  mkdir -p "project/current/release"
-  
-  # Create a symbolic link in the new directory, pointing to the original file
-  ln -s "$PWD/$file" "$PWD/project/current/release/$(basename "$file")"
-done
+# Cleanup old releases
+cd "$releases_dir"
+ls -1 | sort -r | tail -n +$((keepReleases + 1)) | xargs -r rm -rf
+echo "Old releases cleaned up, keeping the last $keepReleases."

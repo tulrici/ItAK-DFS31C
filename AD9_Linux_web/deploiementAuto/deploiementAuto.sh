@@ -41,8 +41,8 @@ deploy() {
     local timestamp=$(date +"%Y%m%d%H%M%S")
     local new_release_dir="$releases_dir/$timestamp"
     mkdir -p "$new_release_dir"
-    find "$shared_dir" -type f -print0 | while IFS= read -r -d '' file; do
-        local subdir=$(dirname "${file#$shared_dir/}")
+    find "$dev_dir" -type f -print0 | while IFS= read -r -d '' file; do
+        local subdir=$(dirname "${file#$dev_dir/}")
         mkdir -p "$new_release_dir/$subdir"
         ln -s "$PWD/$file" "$new_release_dir/$subdir/$(basename "$file")"
     done

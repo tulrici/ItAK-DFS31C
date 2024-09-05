@@ -64,7 +64,7 @@ rollback() {
         echo "Rollback not possible: Not enough releases."
         return 1
     fi
-    local current_index=$(basename "$(readlink "$release_dir/current")")
+    local current_index=$(basename "$(readlink "$releases_dir/current")")
     for (( i=0; i<${#releases[@]}; i++ )); do
         if [[ "${releases[i]}" == "$current_index" && $i -gt 0 ]]; then
             update_current "${release_dir}/${releases[$i-1]}"

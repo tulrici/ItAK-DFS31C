@@ -60,7 +60,7 @@ deploy() {
 # Rollback logic
 rollback() {
     local releases=($(ls -1tr "$releases_dir"))
-    if [ ${#releases[@]} -lt 2 ]; then
+    if [ ${#releases[@]} -eq 0 ]; then
         echo "Rollback not possible: Not enough releases."
         return 1
     fi

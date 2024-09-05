@@ -1,1 +1,1 @@
-keepReleases=5
+keepReleases=2

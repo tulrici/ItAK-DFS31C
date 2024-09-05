@@ -18,21 +18,22 @@ save_config() {
 
 # Define base directories
 releases_dir="project/current/releases"
+release_dir="project/current/release" # Directory for the actual 'current' directory, not just a symlink
 shared_dir="project/shared"
-current_link="project/current/release"
+dev_dir="project/dev"
 
 # Ensure the required directories exist
-mkdir -p "$releases_dir" "$shared_dir"
+mkdir -p "$releases_dir" "$release_dir" "$shared_dir" "$dev_dir"
 
-# Function to update the 'current' symbolic link
+# Function to update the 'current' directory to the latest release
 update_current() {
-    ln -sfn "$1" "$current_link"
-    echo "Current release set to: $(basename $1)"
+    local new_release_path="$1"
+    local release_name=$(basename "$new_release_path")
 
-    # Clean any existing symbolic links in the shared directory
-    find "$shared_dir" -type l -exec rm {} \;
-    # Create a new symbolic link in shared directory pointing to the new current
-    ln -s "$1" "$shared_dir/current_release"
+    # Remove old 'current' directory and recreate it as a symlink to the new release
+    rm -rf "$release_dir/current"  # Remove the old current directory
+    ln -s "$new_release_path" "$release_dir/current"  # Create a symlink named 'current' pointing to the new release
+    echo "Current release set to: $release_name"
 }
 
 # Deployment logic
@@ -56,7 +57,7 @@ rollback() {
         echo "Rollback not possible: Not enough releases."
         return 1
     fi
-    local current_index=$(basename "$(readlink "$current_link")")
+    local current_index=$(basename "$(readlink "$release_dir/current")")
     for (( i=0; i<${#releases[@]}; i++ )); do
         if [[ "${releases[i]}" == "$current_index" && $i -gt 0 ]]; then
             update_current "${releases_dir}/${releases[$i-1]}"

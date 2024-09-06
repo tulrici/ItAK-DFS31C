@@ -3,12 +3,20 @@
 # Configuration file path
 config_file=".env"
 
+# Test if git is installed
+if ! command -v git &> /dev/null; then
+    echo "Git is required but not installed. Abort deployment."
+    exit 1
+fi
+
 # Load configurations
 if [ -f "$config_file" ]; then
     source "$config_file"
+
 else
     # Default value if configuration file does not exist
     keepReleases=5
+    distantRepository="https://github.com/Nyxis/ItAK-DFS31C.git"
 fi
 
 # Function to save current configurations
@@ -18,12 +26,18 @@ save_config() {
 
 # Define base directories
 releases_dir="project/releases"
-release_dir="project/current/release"  # Directory for the actual 'current' directory, not just a symlink
+release_dir="project/current/release"
 shared_dir="project/shared"
-dev_dir="project/dev"
 
 # Ensure the required directories exist
-mkdir -p "$releases_dir" "$release_dir" "$shared_dir" "$dev_dir"
+mkdir -p "$releases_dir" "$release_dir" "$shared_dir"
+
+
+# Function to clone the repository
+clone_repository() {
+    local timestamp="$1"
+    git clone "$distantRepository" "$release_dir/$timestamp"
+}
 
 # Function to update the 'current' directory to the latest release
 update_current() {
@@ -48,16 +62,11 @@ deploy() {
     local timestamp=$(date +"%Y%m%d%H%M%S")
     local new_release_dir="$release_dir/$timestamp"
     mkdir -p "$new_release_dir"
-    find "$dev_dir" -type f -print0 | while IFS= read -r -d '' file; do
-        local subdir=$(dirname "${file#$dev_dir/}")
-        mkdir -p "$new_release_dir/$subdir"
-        ln -s "$PWD/$file" "$new_release_dir/$subdir/$(basename "$file")"
-    done
+    clone_repository "$timestamp"
     update_current "$new_release_dir"
     echo "Deployment complete: $timestamp"
 }
 
-# Rollback logic
 # Rollback logic
 rollback() {
     # Fetch all available releases sorted from newest to oldest

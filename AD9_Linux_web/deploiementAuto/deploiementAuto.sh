@@ -58,6 +58,7 @@ deploy() {
 }
 
 # Rollback logic
+# Rollback logic
 rollback() {
     # Fetch all available releases sorted from newest to oldest
     local releases=($(ls -1t "$releases_dir"))
@@ -68,8 +69,8 @@ rollback() {
         return 1
     fi
     
-    # The current release is the one pointed to by the symlink in release_dir
-    local current_release=$(basename "$(readlink "$release_dir")")
+    # Resolve the symlink to find the currently active release
+    local current_release=$(basename "$(readlink "$release_dir/current")")
     local next_release="${releases[0]}"  # The most recent in releases_dir
 
     # Check if the current release is already the oldest available
@@ -78,10 +79,13 @@ rollback() {
         return 1
     fi
 
-    # Remove the current symbolic link and update to the previous release
+    # Prepare for the rollback by removing the current directory and moving the old release
     echo "Rolling back from $current_release to $next_release."
-    rm -rf "$release_dir/current"  # Remove the current symlink or directory
-    ln -sfn "$releases_dir/$next_release" "$release_dir"  # Point to the next most recent release
+    rm -rf "$release_dir/$current_release"  # Remove the actual current directory, if it exists physically in release_dir
+    mv "$releases_dir/$next_release" "$release_dir/"  # Move the next most recent release to current directory
+
+    # Update the current symlink to point to the newly moved release
+    ln -sfn "$release_dir/$next_release" "$release_dir/current"
     echo "Rollback to $next_release completed successfully."
 }
 

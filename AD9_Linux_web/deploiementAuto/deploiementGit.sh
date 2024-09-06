@@ -17,11 +17,16 @@ else
     # Default value if configuration file does not exist
     keepReleases=5
     distantRepository="https://github.com/Nyxis/ItAK-DFS31C.git"
+    repositoryBranch="main"
+    repositoryFolder="clone_me"
 fi
 
 # Function to save current configurations
 save_config() {
     echo "keepReleases=$keepReleases" > "$config_file"
+    echo "distantRepository=$distantRepository" >> "$config_file"
+    echo "repositoryBranch=$repositoryBranch" >> "$config_file"
+    echo "repositoryFolder=$repositoryFolder" >> "$config_file"
 }
 
 # Define base directories
@@ -36,7 +41,7 @@ mkdir -p "$releases_dir" "$release_dir" "$shared_dir"
 # Function to clone the repository
 clone_repository() {
     local timestamp="$1"
-    git clone "$distantRepository" "$release_dir/$timestamp"
+    git clone -b "$repositoryBranch" "$distantRepository" "$release_dir/$timestamp"
 }
 
 # Function to update the 'current' directory to the latest release

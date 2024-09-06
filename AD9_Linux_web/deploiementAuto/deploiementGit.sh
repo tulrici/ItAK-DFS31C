@@ -3,6 +3,8 @@
 # Configuration file path
 config_file=".env"
 verbose=false  # Initialize verbose logging as false
+noInteraction=false  # Initialize no-interaction mode as false
+quiet=false  # Initialize quiet mode as false
 
 # Test if git is installed
 if ! command -v git &> /dev/null; then
@@ -52,32 +54,46 @@ clone_repository() {
     [ "$verbose" = true ] && echo "Repository cloned into $release_dir/$timestamp"
 }
 
+# Function to perform build operations and handle failures
 build() {
     local build_directory="$release_dir/$timestamp"
     cd "$build_directory"
+    
+    # Check if a build command is defined
     if [ -n "$buildCommand" ]; then
-        echo "Building project..."
+        if [ "$quiet" = false ]; then echo "Building project with custom command..."; fi
         if ! eval "$buildCommand"; then
-            echo "Build failed. Initiating rollback..."
+            if [ "$quiet" = false ]; then echo "Build failed. Initiating rollback..."; fi
             rollback
             exit 1
         fi
-        echo "Build successful."
+        if [ "$quiet" = false ]; then echo "Build successful."; fi
     elif [ -f "Makefile" ]; then
-        echo "Makefile found but no build command defined. Execute 'make' (Y/n)?"
-        read -r execute_make
-        if [[ "$execute_make" == "Y" || "$execute_make" == "y" ]]; then
+        if [ "$quiet" = false ]; then echo "Makefile found but no build command defined. Execute 'make' (Y/n)?"; fi
+        if [ "$noInteraction" = false ]; then
+            read -r execute_make
+            if [[ "$execute_make" == "Y" || "$execute_make" == "y" ]]; then
+                if [ "$quiet" = false ]; then echo "Executing 'make'..."; fi
+                if ! make; then
+                    if [ "$quiet" = false ]; then echo "Make failed. Initiating rollback..."; fi
+                    rollback
+                    exit 1
+                fi
+                if [ "$quiet" = false ]; then echo "Make successful."; fi
+            else
+                if [ "$quiet" = false ]; then echo "Skipping 'make'."; fi
+            fi
+        else
+            if [ "$quiet" = false ]; then echo "Non-interactive mode: Auto-executing 'make'..."; fi
             if ! make; then
-                echo "Make failed. Initiating rollback..."
+                if [ "$quiet" = false ]; then echo "Make failed in non-interactive mode. Initiating rollback..."; fi
                 rollback
                 exit 1
             fi
-            echo "Make successful."
-        else
-            echo "Skipping 'make'."
+            if [ "$quiet" = false ]; then echo "Make executed successfully in non-interactive mode."; fi
         fi
     else
-        echo "No build command defined and no Makefile found. Skipping build step."
+        if [ "$quiet" = false ]; then echo "No build command defined and no Makefile found. Skipping build step."; fi
     fi
 }
 
@@ -140,12 +156,20 @@ while getopts ":k:b:hvV" opt; do
         v)
             verbose=true
             ;;
+        q)
+            quiet=true
+            ;;
+        n)
+            noInteraction=true
+            ;;
         V)
             echo "Version 1.0"
             exit 0
             ;;
         \?)
-            echo "Invalid option: -$OPTARG" >&2
+            if [ "$quiet" = false ]; then
+                echo "Invalid option: -$OPTARG" >&2
+            fi
             exit 1
             ;;
     esac
@@ -158,6 +182,12 @@ for arg in "$@"; do
             ;;
         --verbose)
             verbose=true
+            ;;
+        --quiet)
+            quiet=true
+            ;;
+        --no-interaction)
+            noInteraction=true
             ;;
         --version)
             echo "Version 1.0"

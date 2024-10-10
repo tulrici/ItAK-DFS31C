@@ -1,10 +1,14 @@
 const express = require('express');
 const app = express();
+const path = require('path');
 const port = 3000;
 const version = 'V1';
 
-// Serve static files from the "public" directory
 app.use(express.static('public'));
+
+app.use('/documentation', (req, res) =>{
+    res.sendFile(path.join(__dirname, 'DOC', 'find' , 'documentation.md'));
+});
 
 app.get('/', (req, res) => {
     res.send(`
@@ -24,6 +28,9 @@ app.get('/', (req, res) => {
                     <li><button onclick="window.location.href='/APIexercice/${version}/csv'">Go to CSV Route</button></li>
                 </ul>
             </body>
+            <footer>
+                <p><a href="/documentation">Documentation</a></p>
+            </footer>
         </html>
     `);
 });

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Exercise</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Welcome to the API Exercise!</h1>
+    <p>Here are the available routes:</p>
+    <ul>
+        <li><button onclick="window.location.href='/APIexercice/V1/json'">Go to JSON Route</button></li>
+        <li><button onclick="window.location.href='/APIexercice/V1/xml'">Go to XML Route</button></li>
+        <li><button onclick="window.location.href='/APIexercice/V1/csv'">Go to CSV Route</button></li>
+        <p><a href="/documentation">JSON/XML/CVS Documentation</a></p>
+    </ul>
+
+    <h2>Weather Data Query</h2>
+    <p>You can search for weather and location data using either city name or GPS coordinates (latitude and longitude).</p>
+
+    <!-- Query by City Name -->
+    <h3>Search by City</h3>
+    <label for="city">City Name:</label>
+    <input type="text" id="city" name="city" placeholder="Enter city name">
+    <button onclick="getWeatherByCity()">Get Weather by City</button>
+    
+    <!-- Query by GPS Coordinates -->
+    <h3>Search by GPS Coordinates</h3>
+    <label for="lat">Latitude:</label>
+    <input type="text" id="lat" name="lat" placeholder="Enter latitude">
+    <label for="lon">Longitude:</label>
+    <input type="text" id="lon" name="lon" placeholder="Enter longitude">
+    <button onclick="getWeatherByCoordinates()">Get Weather by GPS</button>
+
+    <!-- Weather Documentation -->
+    <h2>Weather Data API Documentation</h2>
+    <p>The Weather API provides current weather data based on either city name or GPS coordinates (latitude and longitude).</p>
+    <h3>Endpoints:</h3>
+    <ul>
+        <li><strong>City Query:</strong> `/APIexercice/V1/locationWeatherData?city={city}`</li>
+        <li><strong>GPS Query:</strong> `/APIexercice/V1/locationWeatherData?lat={latitude}&lon={longitude}`</li>
+    </ul>
+    <h3>Response:</h3>
+    <pre>
+{
+    "city": "London",
+    "country": "United Kingdom",
+    "latitude": "51.4893335",
+    "longitude": "-0.14405508452768728",
+    "temperature": 11.77,
+    "weatherDescription": "clear sky",
+    "windSpeed": 2.57,
+    "humidity": 57
+}
+    </pre>
+
+    <footer>
+    </footer>
+
+    <!-- JavaScript for handling weather queries -->
+    <script>
+        function getWeatherByCity() {
+            const city = document.getElementById('city').value;
+            if (city) {
+                window.location.href = `/APIexercice/V1/locationWeatherData?city=${city}`;
+            } else {
+                alert('Please enter a valid city name.');
+            }
+        }
+
+        function getWeatherByCoordinates() {
+            const lat = document.getElementById('lat').value;
+            const lon = document.getElementById('lon').value;
+            if (lat && lon) {
+                window.location.href = `/APIexercice/V1/locationWeatherData?lat=${lat}&lon=${lon}`;
+            } else {
+                alert('Please enter valid latitude and longitude.');
+            }
+        }
+    </script>
+</body>
+</html>

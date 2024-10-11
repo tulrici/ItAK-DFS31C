@@ -2,7 +2,7 @@
 
 ## Hello world et multi-format
 
-Les API HTTP (aussi appelées API REST) offrent la possibilité au client de l'API (aussi appelé consommateur) de choisir son format de sortie via les headers de requêtes.
+Les API HTTP (aussi appelées API REST sous certaines conditions) offrent la possibilité au client de l'API (aussi appelé consommateur) de choisir son format de sortie via les headers de requêtes.
 
 À l'aide du langage et du framework de votre choix, créez un endpoint qui renvoie la map ```["hello" => "world"]``` au format donné en entrée.
 
@@ -23,4 +23,22 @@ Utilisez une structure objet complète avec des Value Objects, pour la ville par
 Créez maintenant un DTO pour matérialiser les informations recoupées sur les lieux et la météo. Un DTO est un objet simple, contenant les données "à plat" qui vont ensuite être exposées via les Apis REST.
 Le DTO prendra en paramètre le lieu et la donnée météo.
 
-__Tips__ : Appelez votre DTO LocationWeatherData. Il est relativement commun de suffixer les DTO avec "Data".
+_Tips_ : Appelez votre DTO LocationWeatherData. Il est relativement commun de suffixer les DTO avec "Data".
+
+## Consommation d'API HTTP externes
+
+Pour alimenter nos modèles, nous allons avoir besoin de sources de données.
+Les données de localisation seront fournies via les API [OpenStreetMap](https://nominatim.org/release-docs/develop/api/Overview/), et les données météo via [OpenWeatherMap](https://openweathermap.org/api/one-call-3).
+
+Créez des classes de connection à ces APIs, puis utilisez les pour construire les objets modèles créés précédemments.
+
+_Tips_ : Utilisez le design pattern [Builder](https://refactoring.guru/design-patterns/builder).
+
+Exemple de code :
+```js
+const locationWeather = await builder.declare()
+    .name('......')
+    .create()
+;
+```
+

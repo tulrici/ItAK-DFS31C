@@ -42,3 +42,12 @@ const locationWeather = await builder.declare()
 ;
 ```
 
+## Hypermedia
+
+En utilisant les notions vues en cours, améliorez votre API HTTP pour exposer des liens en plus des données métier.
+
+Commencez par créer une "homepage" pour votre API HTTP, qui permet à l'utilisateur d'envoyer une clé, un secret et de sélectionner la version de votre API HTTP qu'il souhaite consommer.
+
+Le retour devra lui exposer les liens à disposition. Dans notre cas, seul le endpoint WeatherData sera disponible.
+
+Créez ensuite une CLI dans le langage de votre choix qui prend en paramètre un lieu, puis appelle votre API HTTP en s'authentifiant en clé / secret, avant de rebondir sur le lien renvoyé par la homepage.

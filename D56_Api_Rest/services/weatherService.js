@@ -1,9 +1,10 @@
+require('dotenv').config();
 const axios = require('axios');
 
 class WeatherService {
   constructor() {
     this.baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
-    this.apiKey = ''; // Replace with your actual OpenWeather API key
+    this.apiKey = process.env.OPENWEATHER_API_KEY; // Replace with your actual OpenWeather API key
   }
 
   /**

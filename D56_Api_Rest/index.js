@@ -43,6 +43,7 @@ app.get('/', (req, res) => {
 });
 
 // Routes setup
+const homeRoutes = require('./routes/home');
 const jsonRoutes = require('./routes/json');
 const xmlRoutes = require('./routes/xml');
 const csvRoutes = require('./routes/csv');
@@ -50,6 +51,7 @@ const weatherRoutes = require('./routes/weather');
 const locationRoutes = require('./routes/location');
 const locationWeatherDataRoutes = require('./routes/locationWeatherData');
 
+app.use(`/APIexercice/${version}`, homeRoutes);
 app.use(`/APIexercice/${version}`, jsonRoutes);
 app.use(`/APIexercice/${version}`, xmlRoutes);
 app.use(`/APIexercice/${version}`, csvRoutes);

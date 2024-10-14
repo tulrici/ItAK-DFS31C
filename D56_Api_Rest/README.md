@@ -42,12 +42,57 @@ const locationWeather = await builder.declare()
 ;
 ```
 
+Utilisez maintenant les DTO créés précédemment pour exposer les données récupérées dans une API HTTP.
+
+## Sécurisation
+
+Le caractère ouvert et propice à l'automatisation des APIs HTTPS en fait une cible parfaite pour des extractions de données pirates sans trop d'efforts.
+
+Aussi, il est nécessaire de mettre en place un minimum de sécurité, en authentifiant chaque requête envoyée via une logique de clé / signature.
+
+La clé est un identifiant donné à un client (utilisateur) sur le serveur de l'API HTTP, généré et transmis avec un hash gardé secret. À chaque requête, un jeton est créé à partir de la clé et du secret pour contextualiser la requête. Cette signature sera vérifiée sur le serveur distant.
+
+Exemple :
+```js
+import httpClient from 'got';
+import jwt from 'jsonwebtoken';
+
+const apiKey = 'CtH#lhuRly€HFt@rgn';
+const secretKey = `Ph'nglu1_mglw'n@fh`;
+
+const securedHttpClient = httpClient.extend({
+    prefixUrl: '/api/v2',
+    responseType: 'json',
+    headers: {
+        'x-api-key': apiKey,
+        'content-type': 'application/json',
+    }
+});
+
+const product = {
+    name: 'Mind Flayer 17',
+    price: 66666
+};
+
+const signature = jwt.sign(product, secretKey + apiKey);
+
+const response = securedHttpClient.post('/products', {
+    headers: { 'x-signature': signature },
+    json: product
+});
+```
+
+Ajoutez maintenant un contrôle de la signature à votre API HTTP, qui renvoie l'erreur appropriée aux requêtes qui transmettent un jeton erroné.
+
+__Tips__ : pour les utilisateurs de Php : https://github.com/web-token/jwt-framework.
+
+
 ## Hypermedia
 
 En utilisant les notions vues en cours, améliorez votre API HTTP pour exposer des liens en plus des données métier.
 
 Commencez par créer une "homepage" pour votre API HTTP, qui permet à l'utilisateur d'envoyer une clé, un secret et de sélectionner la version de votre API HTTP qu'il souhaite consommer.
 
-Le retour devra lui exposer les liens à disposition. Dans notre cas, seul le endpoint WeatherData sera disponible.
+Le retour devra lui exposer les liens à disposition et un token généré côté serveur dont il devra se servir pour authentifier ses futures requêtes. Dans notre cas, seul le endpoint WeatherData sera disponible.
 
 Créez ensuite une CLI dans le langage de votre choix qui prend en paramètre un lieu, puis appelle votre API HTTP en s'authentifiant en clé / secret, avant de rebondir sur le lien renvoyé par la homepage.

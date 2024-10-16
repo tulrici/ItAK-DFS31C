@@ -4,28 +4,20 @@ const axios = require('axios');
 class WeatherService {
   constructor() {
     this.baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
-    this.apiKey = process.env.OPENWEATHER_API_KEY; // Replace with your actual OpenWeather API key
+    this.apiKey = process.env.OPENWEATHER_API_KEY;  // Ensure the API key is set in the environment
   }
 
-  /**
-   * Fetch weather data from OpenWeather API based on latitude and longitude.
-   * @param {number} lat - Latitude of the location.
-   * @param {number} lon - Longitude of the location.
-   * @returns {Promise<Object>} - Weather data for the given location.
-   */
   async getWeatherData(lat, lon) {
     try {
-      // Make a request to the OpenWeather API with lat, lon, and your API key
       const response = await axios.get(this.baseUrl, {
         params: {
           lat: lat,
           lon: lon,
           appid: this.apiKey,
-          units: 'metric', // Get temperature in Celsius
+          units: 'metric'
         },
       });
 
-      // Return the data from OpenWeather if successful
       return response.data;
     } catch (error) {
       console.error('Error fetching weather data:', error.message);
@@ -34,4 +26,8 @@ class WeatherService {
   }
 }
 
-module.exports = WeatherService;
+module.exports = {
+  getWeather: async (city) => {
+    // Actual implementation
+  },
+};

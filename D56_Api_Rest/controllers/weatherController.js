@@ -6,7 +6,6 @@ exports.getWeather = async (req, res) => {
     try {
         const weatherData = await getWeather(city);
 
-        // Send weather data as a JSON response
         res.json({
             location: city,
             temperature: weatherData.temperature,
